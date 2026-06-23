@@ -1,7 +1,7 @@
 name: Push to Replicate
 
 on:
-  workflow_dispatch: # تشغيل يدوي
+  workflow_dispatch:
 
 jobs:
   deploy:
@@ -19,4 +19,5 @@ jobs:
         run: echo ${{ secrets.REPLICATE_API_TOKEN }} | cog login --stdin
 
       - name: Push to Replicate
-        run: cog push replicate.com/your-username/your-model-name
+        run: cog push replicate.com/montzrali511-max/glm-5-2
+
