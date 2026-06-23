@@ -1,12 +1,14 @@
+from cog import BasePredictor, Input
 import torch
 from transformers import AutoModelForCausalLM, AutoTokenizer
 from huggingface_hub import snapshot_download
 
-class Predictor:
+class Predictor(BasePredictor):
     def setup(self):
         """تحميل الموديل عند بدء التشغيل"""
-        # تحميل أوزان GLM-5.2 من Hugging Face
-        model_path = snapshot_download(repo_id="zai-org/GLM-5.2")
+        model_id = "zai-org/GLM-5.2"
+        # تحميل الأوزان من Hugging Face
+        model_path = snapshot_download(repo_id=model_id)
         
         self.tokenizer = AutoTokenizer.from_pretrained(model_path, trust_remote_code=True)
         self.model = AutoModelForCausalLM.from_pretrained(
@@ -15,16 +17,19 @@ class Predictor:
             device_map="auto",
             trust_remote_code=True
         )
-        self.model.eval()
 
-    @torch.no_grad()
-    def predict(self, prompt: str, max_new_tokens: int = 512, temperature: float = 0.7) -> str:
-        """تشغيل التوقع بناءً على النص المدخل"""
+    def predict(
+        self,
+        prompt: str = Input(description="النص المدخل للموديل"),
+        max_tokens: int = Input(description="أقصى عدد من الكلمات الناتجة", default=512),
+        temperature: float = Input(description="درجة العشوائية", default=0.7),
+    ) -> str:
+        """تشغيل التوقع"""
         inputs = self.tokenizer(prompt, return_tensors="pt").to(self.model.device)
         outputs = self.model.generate(
             **inputs,
-            max_new_tokens=max_new_tokens,
-            do_sample=True,
-            temperature=temperature
+            max_new_tokens=max_tokens,
+            temperature=temperature,
+            do_sample=True
         )
         return self.tokenizer.decode(outputs[0], skip_special_tokens=True)

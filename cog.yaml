@@ -2,6 +2,7 @@ build:
   python_version: "3.10"
   cuda: "11.8"
   python_packages:
+    - "cog==0.8.6"
     - "torch==2.1.0"
     - "transformers==4.35.2"
     - "accelerate==0.24.1"
